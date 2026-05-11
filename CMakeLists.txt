@@ -398,25 +398,26 @@ endif()
 # --------------------------------------------------------------------
 # Install
 # --------------------------------------------------------------------
-install(
-    TARGETS kordex_std
-    EXPORT ${KORDEX_STD_EXPORT_SET}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-install(
-    DIRECTORY include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING
-      PATTERN "*.hpp"
-      PATTERN "*.h")
-
-# --------------------------------------------------------------------
-# Standalone package config/export
-# --------------------------------------------------------------------
 if(NOT (DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD))
+
+  install(
+      TARGETS kordex_std
+      EXPORT kordex_stdTargets
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+  install(
+      DIRECTORY include/
+      DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+      FILES_MATCHING
+        PATTERN "*.hpp"
+        PATTERN "*.h")
+
+  # --------------------------------------------------------------------
+  # Standalone package config/export
+  # --------------------------------------------------------------------
   configure_package_config_file(
       "${CMAKE_CURRENT_SOURCE_DIR}/cmake/KordexStdConfig.cmake.in"
       "${CMAKE_CURRENT_BINARY_DIR}/kordex_stdConfig.cmake"
@@ -439,6 +440,7 @@ if(NOT (DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD))
       FILE kordex_stdTargets.cmake
       NAMESPACE kordex::
       DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/kordex_std")
+
 endif()
 
 # --------------------------------------------------------------------
