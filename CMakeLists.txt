@@ -344,66 +344,14 @@ if(KORDEX_STD_BUILD_TESTS)
   include(CTest)
   enable_testing()
 
-  set(KORDEX_STD_TESTS
-      test_version
-      test_error
-      test_std_options
-      test_std_config
-      test_console
-      test_fs
-      test_path
-      test_env
-      test_process
-      test_timer
-      test_crypto
-      test_http
-      test_module_factory
-      test_std_registry)
-
-  foreach(test_name IN LISTS KORDEX_STD_TESTS)
-    set(test_source "${CMAKE_CURRENT_SOURCE_DIR}/tests/${test_name}.cpp")
-
-    if(EXISTS "${test_source}")
-      add_executable(${test_name}
-          "${test_source}")
-
-      target_link_libraries(${test_name}
-          PRIVATE
-            kordex::std
-            vix::tests)
-
-      add_test(
-          NAME ${test_name}
-          COMMAND ${test_name})
-    endif()
-  endforeach()
+  add_subdirectory(tests)
 endif()
 
 # --------------------------------------------------------------------
 # Examples
 # --------------------------------------------------------------------
 if(KORDEX_STD_BUILD_EXAMPLES)
-  set(KORDEX_STD_EXAMPLES
-      console
-      fs
-      path
-      env
-      process
-      timer
-      registry)
-
-  foreach(example_name IN LISTS KORDEX_STD_EXAMPLES)
-    set(example_source "${CMAKE_CURRENT_SOURCE_DIR}/examples/${example_name}.cpp")
-
-    if(EXISTS "${example_source}")
-      add_executable(kordex_std_${example_name}
-          "${example_source}")
-
-      target_link_libraries(kordex_std_${example_name}
-          PRIVATE
-            kordex::std)
-    endif()
-  endforeach()
+  add_subdirectory(examples)
 endif()
 
 # --------------------------------------------------------------------
