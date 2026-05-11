@@ -10,20 +10,21 @@
 # Kordex Std - Build Options
 # ====================================================================
 
-# ifndef(KORDEX_STD_OPTIONS_INCLUDED)
+include_guard(GLOBAL)
+
 set(KORDEX_STD_OPTIONS_INCLUDED ON)
 
 # --------------------------------------------------------------------
 # Build options
 # --------------------------------------------------------------------
-option(KORDEX_STD_BUILD_TESTS "Build Kordex std tests" OFF)
-option(KORDEX_STD_BUILD_EXAMPLES "Build Kordex std examples" OFF)
+option(KORDEX_STD_BUILD_TESTS "Build Kordex Std tests" OFF)
+option(KORDEX_STD_BUILD_EXAMPLES "Build Kordex Std examples" OFF)
 
 # --------------------------------------------------------------------
 # Developer options
 # --------------------------------------------------------------------
-option(KORDEX_STD_ENABLE_WARNINGS "Enable compiler warnings for Kordex std" ON)
-option(KORDEX_STD_ENABLE_SANITIZERS "Enable sanitizers for Kordex std" OFF)
+option(KORDEX_STD_ENABLE_WARNINGS "Enable compiler warnings for Kordex Std" ON)
+option(KORDEX_STD_ENABLE_SANITIZERS "Enable sanitizers for Kordex Std" OFF)
 
 # --------------------------------------------------------------------
 # Standard module options
@@ -48,41 +49,88 @@ set(KORDEX_VIX_GIT_TAG
 set(KORDEX_RUNTIME_GIT_TAG
     "main"
     CACHE STRING
-    "Git tag or branch used for kordex runtime")
+    "Git tag or branch used for Kordex Runtime")
 
 set(KORDEX_BINDINGS_GIT_TAG
     "main"
     CACHE STRING
-    "Git tag or branch used for kordex bindings")
+    "Git tag or branch used for Kordex Bindings")
 
 # --------------------------------------------------------------------
-# Dependency fetch options
+# Dependency fetch policy
 # --------------------------------------------------------------------
-option(KORDEX_STD_FETCH_BINDINGS "Auto-fetch kordex::bindings if missing" ON)
-option(KORDEX_STD_FETCH_RUNTIME "Auto-fetch kordex::runtime if missing" ON)
-
-option(KORDEX_STD_FETCH_ERROR "Auto-fetch vix::error if missing" ON)
-option(KORDEX_STD_FETCH_LOG "Auto-fetch vix::log if missing" ON)
-option(KORDEX_STD_FETCH_JSON "Auto-fetch vix::json if missing" ON)
-option(KORDEX_STD_FETCH_FS "Auto-fetch vix::fs if missing" ON)
-option(KORDEX_STD_FETCH_PATH "Auto-fetch vix::path if missing" ON)
-option(KORDEX_STD_FETCH_ENV "Auto-fetch vix::env if missing" ON)
-option(KORDEX_STD_FETCH_PROCESS "Auto-fetch vix::process if missing" ON)
-option(KORDEX_STD_FETCH_TIME "Auto-fetch vix::time if missing" ON)
-option(KORDEX_STD_FETCH_CRYPTO "Auto-fetch vix::crypto if missing" ON)
-option(KORDEX_STD_FETCH_HTTP "Auto-fetch vix::http if missing" ON)
+option(KORDEX_STD_FETCH_KORDEX_DEPS "Auto-fetch missing Kordex dependencies" ON)
+option(KORDEX_STD_FETCH_VIX_DEPS "Auto-fetch missing Vix dependencies" ON)
 option(KORDEX_STD_FETCH_TESTS "Auto-fetch vix::tests if missing" ON)
+
+set(KORDEX_STD_FETCH_BINDINGS
+    ${KORDEX_STD_FETCH_KORDEX_DEPS}
+    CACHE BOOL
+    "Auto-fetch kordex::bindings if missing")
+
+set(KORDEX_STD_FETCH_RUNTIME
+    ${KORDEX_STD_FETCH_KORDEX_DEPS}
+    CACHE BOOL
+    "Auto-fetch kordex::runtime if missing")
+
+set(KORDEX_STD_FETCH_ERROR
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::error if missing")
+
+set(KORDEX_STD_FETCH_LOG
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::log if missing")
+
+set(KORDEX_STD_FETCH_JSON
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::json if missing")
+
+set(KORDEX_STD_FETCH_FS
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::fs if missing")
+
+set(KORDEX_STD_FETCH_PATH
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::path if missing")
+
+set(KORDEX_STD_FETCH_ENV
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::env if missing")
+
+set(KORDEX_STD_FETCH_PROCESS
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::process if missing")
+
+set(KORDEX_STD_FETCH_TIME
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::time if missing")
+
+set(KORDEX_STD_FETCH_CRYPTO
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::crypto if missing")
+
+set(KORDEX_STD_FETCH_CORE
+    ${KORDEX_STD_FETCH_VIX_DEPS}
+    CACHE BOOL
+    "Auto-fetch vix::core if missing")
 
 # --------------------------------------------------------------------
 # Umbrella build policy
 # --------------------------------------------------------------------
-# When Kordex std is built inside the kordex umbrella repository,
-# dependencies should be provided by the umbrella build.
-#
-# In that mode, std must not fetch dependencies by itself.
-# The root project is responsible for add_subdirectory order.
-# --------------------------------------------------------------------
 if(DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD)
+  set(KORDEX_STD_FETCH_KORDEX_DEPS OFF CACHE BOOL "Auto-fetch missing Kordex dependencies" FORCE)
+  set(KORDEX_STD_FETCH_VIX_DEPS OFF CACHE BOOL "Auto-fetch missing Vix dependencies" FORCE)
+  set(KORDEX_STD_FETCH_TESTS OFF CACHE BOOL "Auto-fetch vix::tests if missing" FORCE)
+
   set(KORDEX_STD_FETCH_BINDINGS OFF CACHE BOOL "Auto-fetch kordex::bindings if missing" FORCE)
   set(KORDEX_STD_FETCH_RUNTIME OFF CACHE BOOL "Auto-fetch kordex::runtime if missing" FORCE)
 
@@ -95,8 +143,5 @@ if(DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD)
   set(KORDEX_STD_FETCH_PROCESS OFF CACHE BOOL "Auto-fetch vix::process if missing" FORCE)
   set(KORDEX_STD_FETCH_TIME OFF CACHE BOOL "Auto-fetch vix::time if missing" FORCE)
   set(KORDEX_STD_FETCH_CRYPTO OFF CACHE BOOL "Auto-fetch vix::crypto if missing" FORCE)
-  set(KORDEX_STD_FETCH_HTTP OFF CACHE BOOL "Auto-fetch vix::http if missing" FORCE)
-  set(KORDEX_STD_FETCH_TESTS OFF CACHE BOOL "Auto-fetch vix::tests if missing" FORCE)
+  set(KORDEX_STD_FETCH_CORE OFF CACHE BOOL "Auto-fetch vix::core if missing" FORCE)
 endif()
-
-# endif()

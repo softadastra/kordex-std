@@ -14,6 +14,14 @@ find_dependency(vix_env CONFIG REQUIRED)
 find_dependency(vix_process CONFIG REQUIRED)
 find_dependency(vix_time CONFIG REQUIRED)
 
+if(@KORDEX_STD_ENABLE_CRYPTO@)
+  find_dependency(vix_crypto CONFIG REQUIRED)
+endif()
+
+if(@KORDEX_STD_ENABLE_HTTP@)
+  find_dependency(vix_core CONFIG REQUIRED)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/kordex_stdTargets.cmake")
 
 check_required_components(kordex_std)
