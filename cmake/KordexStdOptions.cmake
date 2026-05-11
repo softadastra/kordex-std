@@ -21,6 +21,13 @@ option(KORDEX_STD_BUILD_TESTS "Build Kordex Std tests" OFF)
 option(KORDEX_STD_BUILD_EXAMPLES "Build Kordex Std examples" OFF)
 
 # --------------------------------------------------------------------
+# Install options
+# --------------------------------------------------------------------
+option(KORDEX_STD_ENABLE_INSTALL
+    "Generate install/export rules for Kordex Std"
+    OFF)
+
+# --------------------------------------------------------------------
 # Developer options
 # --------------------------------------------------------------------
 option(KORDEX_STD_ENABLE_WARNINGS "Enable compiler warnings for Kordex Std" ON)

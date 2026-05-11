@@ -52,12 +52,24 @@ function(kordex_std_require_target target_name package_name sibling_dir fetch_op
         "[std] Umbrella build requires target '${target_name}' to be provided by the root project.")
   endif()
 
-  if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../${sibling_dir}/CMakeLists.txt")
-    message(STATUS "[std] Adding ${target_name} from sibling: ../${sibling_dir}")
+  set(local_kordex_dep
+      "${CMAKE_CURRENT_LIST_DIR}/../${sibling_dir}")
+
+  set(local_vix_dep
+      "${CMAKE_CURRENT_LIST_DIR}/../../deps/vix/${sibling_dir}")
+
+  if(EXISTS "${local_kordex_dep}/CMakeLists.txt")
+    message(STATUS "[std] Adding ${target_name} from Kordex sibling: ${local_kordex_dep}")
 
     add_subdirectory(
-        "${CMAKE_CURRENT_LIST_DIR}/../${sibling_dir}"
+        "${local_kordex_dep}"
         "${CMAKE_CURRENT_BINARY_DIR}/_deps/${sibling_dir}")
+  elseif(EXISTS "${local_vix_dep}/CMakeLists.txt")
+    message(STATUS "[std] Adding ${target_name} from umbrella Vix dependency: ${local_vix_dep}")
+
+    add_subdirectory(
+        "${local_vix_dep}"
+        "${CMAKE_CURRENT_BINARY_DIR}/_deps/vix_${sibling_dir}")
   else()
     find_package(${package_name} CONFIG QUIET)
   endif()
@@ -84,6 +96,7 @@ function(kordex_std_require_target target_name package_name sibling_dir fetch_op
     message(FATAL_ERROR
         "[std] Required dependency target '${target_name}' was not found.\n"
         "Install package '${package_name}', provide sibling '../${sibling_dir}', "
+        "provide umbrella dependency '../../deps/vix/${sibling_dir}', "
         "or enable ${fetch_option}.")
   endif()
 endfunction()
@@ -396,7 +409,8 @@ endif()
 # --------------------------------------------------------------------
 # Install
 # --------------------------------------------------------------------
-if(NOT (DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD))
+if(KORDEX_STD_ENABLE_INSTALL
+   AND NOT (DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD))
 
   install(
       TARGETS kordex_std
@@ -455,6 +469,7 @@ message(STATUS "  tests     : ${KORDEX_STD_BUILD_TESTS}")
 message(STATUS "  examples  : ${KORDEX_STD_BUILD_EXAMPLES}")
 message(STATUS "  warnings  : ${KORDEX_STD_ENABLE_WARNINGS}")
 message(STATUS "  sanitizers: ${KORDEX_STD_ENABLE_SANITIZERS}")
+message(STATUS "  install   : ${KORDEX_STD_ENABLE_INSTALL}")
 message(STATUS "  console   : ${KORDEX_STD_ENABLE_CONSOLE}")
 message(STATUS "  fs        : ${KORDEX_STD_ENABLE_FS}")
 message(STATUS "  path      : ${KORDEX_STD_ENABLE_PATH}")
