@@ -2,589 +2,825 @@
 
 Standard native modules for Kordex.
 
-`kordex::standard` provides the built-in standard modules used by Kordex applications. It exposes native modules such as `console`, `fs`, `path`, `env`, `process`, `timer`, `crypto`, and `http` through the `kordex::bindings` layer.
+`kordex-std` provides the native standard modules exposed to JavaScript and TypeScript scripts through the Kordex bindings layer.
 
-The module is designed to be installed into:
-
-- a `kordex::bindings::ModuleRegistry`
-- a `kordex::bindings::EngineContext`
-- a `kordex::bindings::Engine`
-
-## Purpose
-
-Kordex Std is the standard library layer of Kordex.
-
-It gives scripts access to safe, structured native modules while keeping the implementation in C++.
-
-The dependency direction is:
+It defines modules such as:
 
 ```txt
-kordex::std
-  -> kordex::bindings
-  -> kordex::runtime
-  -> vix modules
+kordex:console
+kordex:fs
+kordex:path
+kordex:env
+kordex:process
+kordex:timer
+kordex:crypto
+kordex:http
 ```
 
-Runtime and bindings must not depend on std.
+These modules are implemented in C++ and exposed to scripts through `kordex-bindings`.
 
-## Namespace
+## Role
 
-The folder path is:
+`kordex-std` is the standard library layer of Kordex.
 
-```
+It is responsible for:
+
+- creating native modules
+- creating native functions
+- registering standard modules into `ModuleRegistry`
+- installing standard modules into `EngineContext`
+- installing standard modules into `Engine`
+- respecting runtime permissions
+- exposing safe utility APIs to JavaScript
+
+The module does not execute JavaScript directly.
+Execution is handled by `kordex-bindings`.
+
+## Public headers
+
+```txt
 include/kordex/std/
+├── Console.hpp
+├── Crypto.hpp
+├── Env.hpp
+├── Error.hpp
+├── Fs.hpp
+├── Http.hpp
+├── ModuleFactory.hpp
+├── Path.hpp
+├── Process.hpp
+├── Result.hpp
+├── Std.hpp
+├── StdConfig.hpp
+├── StdOptions.hpp
+├── StdRegistry.hpp
+├── Timer.hpp
+└── Version.hpp
 ```
 
-But the C++ namespace is:
+## Features
 
-```cpp
-namespace kordex::standard
+- Console module
+- Filesystem module
+- Path module
+- Environment module
+- Process module
+- Timer module
+- Crypto utility module
+- HTTP utility module
+- Standard module factory
+- Standard module registry
+- Native module installation into bindings
+- Permission-aware configuration
+- Safe default configuration
+- Development, production, test, and minimal presets
+
+## Standard modules
+
+### `kordex:console`
+
+Console output helpers.
+
+Available functions:
+
+- `log`
+- `info`
+- `warn`
+- `error`
+- `debug`
+
+Example:
+
+```js
+import { log } from "kordex:console";
+
+log("Hello from Kordex");
 ```
 
-Do not use `namespace kordex::std`, because it conflicts with C++ `std`.
+### `kordex:path`
 
-## Modules
+Path manipulation helpers.
 
-Kordex Std currently provides:
+Available functions:
 
-| Module | Description |
-|---|---|
-| `console` | console logging helpers |
-| `fs` | filesystem helpers |
-| `path` | path manipulation helpers |
-| `env` | environment variable helpers |
-| `process` | process helpers |
-| `timer` | timing helpers |
-| `crypto` | utility crypto-like helpers |
-| `http` | HTTP utility helpers |
+- `normalize`
+- `join`
+- `dirname`
+- `basename`
+- `extension`
+- `is_absolute`
+- `is_relative`
 
-## Public include
+Example:
 
-Use the umbrella header:
+```js
+import { join } from "kordex:path";
 
-```cpp
-#include <kordex/std/Std.hpp>
+join("/tmp", "kordex", "app");
 ```
 
-This includes the full public Kordex Std API.
+Expected result:
 
-## Quick example
+```txt
+/tmp/kordex/app
+```
+
+### `kordex:fs`
+
+Filesystem helpers.
+
+Available functions:
+
+- `exists`
+- `is_file`
+- `is_directory`
+- `read_text`
+- `write_text`
+- `remove`
+
+Example:
+
+```js
+import { exists } from "kordex:fs";
+
+exists("/tmp");
+```
+
+This module should only be installed when filesystem access is allowed.
+
+### `kordex:env`
+
+Environment variable helpers.
+
+Available functions:
+
+- `get`
+- `has`
+- `set`
+- `unset`
+
+Example:
+
+```js
+import { get } from "kordex:env";
+
+get("HOME");
+```
+
+This module should only be installed when environment access is allowed.
+
+### `kordex:process`
+
+Process helpers.
+
+Available functions:
+
+- `cwd`
+- `chdir`
+- `run`
+
+Example:
+
+```js
+import { cwd } from "kordex:process";
+
+cwd();
+```
+
+This module should only be installed when process access is allowed.
+
+### `kordex:timer`
+
+Timer and time helpers.
+
+Available functions:
+
+- `now`
+- `sleep`
+- `unix_ms`
+
+Example:
+
+```js
+import { unix_ms } from "kordex:timer";
+
+unix_ms();
+```
+
+### `kordex:crypto`
+
+Crypto utility helpers.
+
+Available functions:
+
+- `hash`
+- `random`
+- `random_int`
+- `equals`
+
+Example:
+
+```js
+import { hash } from "kordex:crypto";
+
+hash("hello");
+```
+
+This first version provides deterministic utility primitives.
+Strong cryptographic backends can be connected later behind the same API.
+
+### `kordex:http`
+
+HTTP utility helpers.
+
+Available functions:
+
+- `is_success`
+- `is_redirect`
+- `is_client_error`
+- `is_server_error`
+- `status_text`
+- `build_url`
+- `normalize_method`
+- `is_method`
+
+Example:
+
+```js
+import { status_text } from "kordex:http";
+
+status_text(200);
+```
+
+This first version provides safe HTTP helper utilities.
+Real network requests can be connected later behind the same module.
+
+## Std options
+
+`StdOptions` is the user-facing configuration for standard modules.
 
 ```cpp
-#include <iostream>
+kordex::standard::StdOptions options;
 
-#include <kordex/std/Std.hpp>
+options.enabled = true;
+options.safe_by_default = true;
 
-int main()
+options.enable_console = true;
+options.enable_fs = true;
+options.enable_path = true;
+options.enable_env = true;
+options.enable_process = false;
+options.enable_timer = true;
+options.enable_crypto = true;
+options.enable_http = false;
+```
+
+Factory helpers are available:
+
+```cpp
+auto defaults = kordex::standard::StdOptions::defaults();
+auto dev = kordex::standard::StdOptions::development();
+auto prod = kordex::standard::StdOptions::production();
+auto test = kordex::standard::StdOptions::test();
+auto minimal = kordex::standard::StdOptions::minimal();
+```
+
+## Std config
+
+`StdConfig` is the normalized configuration used internally.
+
+```cpp
+auto config_result =
+    kordex::standard::StdConfig::from_options(options);
+
+if (!config_result)
 {
-  auto module_result = kordex::standard::create_module("console");
-  if (!module_result)
-  {
-    std::cerr << module_result.error().message() << '\n';
-    return 1;
-  }
-
-  auto module = std::move(module_result.value());
-
-  auto call_result = module.call(
-      "log",
-      {kordex::bindings::Value::string("Hello from Kordex Std")});
-
-  if (!call_result)
-  {
-    std::cerr << call_result.error().message() << '\n';
-    return 1;
-  }
-
-  return 0;
+  return 1;
 }
-```
 
-## Main concepts
-
-### StdOptions
-
-`StdOptions` is the user-facing configuration object.
-
-It controls which modules are enabled.
-
-```cpp
-auto options = kordex::standard::StdOptions::minimal();
-```
-
-Available presets:
-
-```cpp
-kordex::standard::StdOptions::defaults();
-kordex::standard::StdOptions::development();
-kordex::standard::StdOptions::production();
-kordex::standard::StdOptions::test();
-kordex::standard::StdOptions::minimal();
-```
-
-### StdConfig
-
-`StdConfig` is the normalized internal configuration.
-
-```cpp
-auto config = kordex::standard::StdConfig::from_options(
-    kordex::standard::StdOptions::defaults());
+auto config = config_result.value();
 ```
 
 It validates:
 
 - registry name
 - namespace name
-- enabled modules
-- native module support
-- native function support
-- max module count
-- module paths
+- global enable state
+- native module permission
+- native function permission
+- enabled module count
+- maximum module count
 
-### ModuleFactory
+## Permission model
 
-`ModuleFactory` creates standard modules by name.
+`kordex-std` is designed to be controlled by runtime permissions.
+
+The CLI maps runtime permissions to standard modules like this:
+
+```txt
+RuntimeConfig.allow_fs      -> StdOptions.enable_fs
+RuntimeConfig.allow_env     -> StdOptions.enable_env
+RuntimeConfig.allow_process -> StdOptions.enable_process
+RuntimeConfig.allow_net     -> StdOptions.enable_http
+```
+
+Safe utility modules can stay enabled by default:
+
+- `console`
+- `path`
+- `timer`
+- `crypto`
+
+Sensitive modules should be explicit:
+
+- `fs`
+- `env`
+- `process`
+- `http`
+
+Example CLI usage:
+
+```bash
+kordex run main.js --allow-fs
+```
+
+Without `--allow-fs`, `kordex:fs` should not be installed into the script environment.
+
+## Module factory
+
+`ModuleFactory` creates standard native modules by name.
 
 ```cpp
-auto factory_result = kordex::standard::ModuleFactory::create();
+kordex::standard::ModuleFactory factory;
 
-auto console = factory_result.value().create_module("console");
-auto fs = factory_result.value().create_module("kordex:fs");
+auto module = factory.create_module("path");
+
+if (!module)
+{
+  return 1;
+}
 ```
 
-Accepted names:
+Supported names:
 
-```
-console / kordex:console
-fs      / kordex:fs
-path    / kordex:path
-env     / kordex:env
-process / kordex:process
-timer   / kordex:timer
-crypto  / kordex:crypto
-http    / kordex:http
-```
+- `console`
+- `fs`
+- `path`
+- `env`
+- `process`
+- `timer`
+- `crypto`
+- `http`
 
-### StdRegistry
-
-`StdRegistry` creates, owns, and installs standard modules.
+The factory also accepts names with the `kordex:` prefix:
 
 ```cpp
-auto registry_result = kordex::standard::create_initialized_registry(
-    kordex::standard::StdOptions::minimal());
-
-auto registry = std::move(registry_result.value());
+auto module = factory.create_module("kordex:path");
 ```
 
-It can install modules into a bindings registry:
+Create all enabled modules:
 
 ```cpp
-kordex::bindings::ModuleRegistry module_registry;
+auto modules = factory.create_all();
+```
 
-auto error = registry.install_into(module_registry);
+## Std registry
+
+`StdRegistry` owns the standard native modules and installs them into the bindings layer.
+
+Typical usage:
+
+```cpp
+auto registry_result = kordex::standard::create_initialized_registry();
+
+if (!registry_result)
+{
+  return 1;
+}
+
+auto registry = registry_result.value();
+```
+
+The registry can install modules into:
+
+- `kordex::bindings::ModuleRegistry`
+- `kordex::bindings::EngineContext`
+- `kordex::bindings::Engine`
+
+## Installing std modules
+
+Install into a `ModuleRegistry`:
+
+```cpp
+kordex::bindings::ModuleRegistry registry;
+
+auto error = kordex::standard::install(
+    registry,
+    kordex::standard::StdOptions::production());
+
 if (error)
 {
   return 1;
 }
 ```
 
-It can also install modules into an engine context or engine:
+Install into an `EngineContext`:
 
 ```cpp
-kordex::bindings::EngineContext context;
-context.initialize();
+kordex::bindings::EngineContext context(config);
 
-auto error = kordex::standard::install(context);
+auto init_error = context.initialize();
+if (init_error)
+{
+  return 1;
+}
+
+auto error = kordex::standard::install(
+    context,
+    kordex::standard::StdOptions::production());
 ```
 
-## Console module
+Install into an `Engine`:
 
-Creates `console`.
+```cpp
+auto engine_result = kordex::bindings::create_engine();
 
-Functions:
+if (!engine_result)
+{
+  return 1;
+}
 
-- `log(...)`
-- `info(...)`
-- `warn(...)`
-- `error(...)`
-- `debug(...)`
+auto engine = std::move(engine_result.value());
+
+auto init = engine.initialize();
+if (!init.succeeded())
+{
+  return 1;
+}
+
+auto error = kordex::standard::install(
+    engine,
+    kordex::standard::StdOptions::production());
+```
+
+## JavaScript imports
+
+Once installed, standard modules can be imported by scripts:
+
+```js
+import { join } from "kordex:path";
+
+join("/tmp", "kordex", "std");
+```
+
+For sensitive modules:
+
+```js
+import { exists } from "kordex:fs";
+
+exists("/tmp");
+```
+
+The module must be enabled in `StdOptions`.
+
+## Native module shape
+
+Each standard module is exposed as a `kordex::bindings::NativeModule`.
+
+A native module contains native functions:
+
+```cpp
+kordex::bindings::NativeFunction
+```
+
+The bindings layer converts them into importable script functions.
+
+The JavaScript bridge calls:
+
+```js
+__kordex_call_native(moduleName, functionName, ...args)
+```
+
+Then the QuickJS backend calls the C++ native function and converts the result back to JavaScript.
+
+## Value types
+
+Standard module functions return `kordex::bindings::Value`.
+
+Supported value types:
+
+- `undefined`
+- `null`
+- `boolean`
+- `number`
+- `string`
 
 Example:
 
 ```cpp
-auto module = kordex::standard::create_module("console").value();
-
-module.call(
-    "log",
-    {kordex::bindings::Value::string("Hello")});
+return kordex::bindings::Value::string("hello");
 ```
 
-## Fs module
-
-Creates `fs`.
-
-Functions:
-
-- `exists(path)`
-- `isFile(path)`
-- `isDirectory(path)`
-- `readText(path)`
-- `writeText(path, content)`
-- `remove(path)`
-
-Example:
+Boolean:
 
 ```cpp
-auto module = kordex::standard::create_module("fs").value();
-
-module.call(
-    "writeText",
-    {kordex::bindings::Value::string("hello.txt"),
-     kordex::bindings::Value::string("Hello")});
+return kordex::bindings::Value::boolean(true);
 ```
 
-## Path module
-
-Creates `path`.
-
-Functions:
-
-- `normalize(path)`
-- `join(...segments)`
-- `dirname(path)`
-- `basename(path)`
-- `extension(path)`
-- `isAbsolute(path)`
-- `isRelative(path)`
-
-Values:
-
-- `name`
-- `namespace`
-- `separator`
-
-Example:
+Number:
 
 ```cpp
-auto module = kordex::standard::create_module("path").value();
-
-auto result = module.call(
-    "join",
-    {kordex::bindings::Value::string("app"),
-     kordex::bindings::Value::string("src"),
-     kordex::bindings::Value::string("main.js")});
+return kordex::bindings::Value::number(42.0);
 ```
 
-## Env module
+## Error handling
 
-Creates `env`.
-
-Functions:
-
-- `get(name)`
-- `has(name)`
-- `set(name, value)`
-- `unset(name)`
-
-Example:
+`kordex-std` uses structured errors and `Result<T>`.
 
 ```cpp
-auto module = kordex::standard::create_module("env").value();
+auto module = kordex::standard::create_fs_module();
 
-module.call(
-    "set",
-    {kordex::bindings::Value::string("KORDEX_ENV"),
-     kordex::bindings::Value::string("development")});
+if (!module)
+{
+  auto message = module.error().message();
+}
 ```
 
-## Process module
+Standard errors use `StdErrorCode`:
 
-Creates `process`.
+- `None`
+- `InvalidArgument`
+- `InvalidConfig`
+- `PermissionDenied`
+- `ModuleDisabled`
+- `ModuleRegistrationFailed`
+- `ConsoleError`
+- `FsError`
+- `PathError`
+- `EnvError`
+- `ProcessError`
+- `TimerError`
+- `CryptoError`
+- `HttpError`
+- `InternalError`
 
-Functions:
-
-- `cwd()`
-- `chdir(path)`
-- `run(command)`
-
-`process` is marked unsafe because it can change process state and run commands.
-
-Production options disable it by default.
-
-Example:
+## Console example
 
 ```cpp
-auto module = kordex::standard::create_module("process").value();
+auto module = kordex::standard::create_console_module();
 
-auto cwd = module.call("cwd", {});
+if (!module)
+{
+  return 1;
+}
 ```
 
-## Timer module
+JavaScript:
 
-Creates `timer`.
+```js
+import { log } from "kordex:console";
 
-Functions:
+log("Hello");
+```
 
-- `now()`
-- `sleep(milliseconds)`
-- `unixMs()`
-
-Example:
+## Path example
 
 ```cpp
-auto module = kordex::standard::create_module("timer").value();
+auto module = kordex::standard::create_path_module();
 
-module.call(
-    "sleep",
-    {kordex::bindings::Value::number(10.0)});
+if (!module)
+{
+  return 1;
+}
 ```
 
-## Crypto module
+JavaScript:
 
-Creates `crypto`.
+```js
+import { join, basename } from "kordex:path";
 
-Functions:
+join("/tmp", "app");
+basename("/tmp/app/main.js");
+```
 
-- `hash(input)`
-- `random()`
-- `randomInt(min, max)`
-- `equals(left, right)`
-
-The first version uses deterministic utility primitives. Real cryptographic backends can be connected later behind the same API.
-
-Example:
+## Filesystem example
 
 ```cpp
-auto module = kordex::standard::create_module("crypto").value();
+auto options = kordex::standard::StdOptions::production();
+options.enable_fs = true;
 
-auto hash = module.call(
-    "hash",
-    {kordex::bindings::Value::string("hello")});
+auto module = kordex::standard::create_fs_module(options);
 ```
 
-## Http module
+JavaScript:
 
-Creates `http`.
+```js
+import { read_text } from "kordex:fs";
 
-Functions:
-
-- `isSuccess(status)`
-- `isRedirect(status)`
-- `isClientError(status)`
-- `isServerError(status)`
-- `statusText(status)`
-- `buildUrl(base, path)`
-- `normalizeMethod(method)`
-- `isMethod(method)`
-
-Values:
-
-- `GET`
-- `POST`
-
-Production options disable `http` by default.
-
-Example:
-
-```cpp
-auto module = kordex::standard::create_module("http").value();
-
-auto ok = module.call(
-    "isSuccess",
-    {kordex::bindings::Value::number(200.0)});
+read_text("README.md");
 ```
 
-## Build
+## Environment example
+
+```js
+import { has, get } from "kordex:env";
+
+has("HOME");
+get("HOME");
+```
+
+## Process example
+
+```js
+import { cwd } from "kordex:process";
+
+cwd();
+```
+
+## Timer example
+
+```js
+import { now, unix_ms } from "kordex:timer";
+
+now();
+unix_ms();
+```
+
+## Crypto example
+
+```js
+import { hash, random_int } from "kordex:crypto";
+
+hash("kordex");
+random_int(1, 10);
+```
+
+## HTTP example
+
+```js
+import { is_success, status_text } from "kordex:http";
+
+is_success(200);
+status_text(404);
+```
+
+## Build from source
 
 From the module directory:
 
 ```bash
-vix build --build-target all -v
+vix build \
+  --preset dev-ninja
 ```
 
-Or with CMake:
+With tests:
 
 ```bash
-cmake -S . -B build-ninja -G Ninja \
-  -DCMAKE_BUILD_TYPE=Debug \
-  -DKORDEX_STD_BUILD_TESTS=ON \
+vix build \
+  --preset dev-ninja \
+  -- \
+  -DKORDEX_STD_BUILD_TESTS=ON
+
+vix tests -- --output-on-failure
+```
+
+With examples:
+
+```bash
+vix build \
+  --preset dev-ninja \
+  -- \
   -DKORDEX_STD_BUILD_EXAMPLES=ON
-
-cmake --build build-ninja
-```
-
-## Build options
-
-```
-KORDEX_STD_BUILD_TESTS=OFF
-KORDEX_STD_BUILD_EXAMPLES=OFF
-
-KORDEX_STD_ENABLE_WARNINGS=ON
-KORDEX_STD_ENABLE_SANITIZERS=OFF
-
-KORDEX_STD_ENABLE_CONSOLE=ON
-KORDEX_STD_ENABLE_FS=ON
-KORDEX_STD_ENABLE_PATH=ON
-KORDEX_STD_ENABLE_ENV=ON
-KORDEX_STD_ENABLE_PROCESS=ON
-KORDEX_STD_ENABLE_TIMER=ON
-KORDEX_STD_ENABLE_CRYPTO=ON
-KORDEX_STD_ENABLE_HTTP=ON
-
-KORDEX_STD_FETCH_BINDINGS=ON
-KORDEX_STD_FETCH_RUNTIME=ON
-
-KORDEX_STD_FETCH_ERROR=ON
-KORDEX_STD_FETCH_LOG=ON
-KORDEX_STD_FETCH_JSON=ON
-KORDEX_STD_FETCH_FS=ON
-KORDEX_STD_FETCH_PATH=ON
-KORDEX_STD_FETCH_ENV=ON
-KORDEX_STD_FETCH_PROCESS=ON
-KORDEX_STD_FETCH_TIME=ON
-KORDEX_STD_FETCH_CRYPTO=ON
-KORDEX_STD_FETCH_HTTP=ON
-KORDEX_STD_FETCH_TESTS=ON
-
-KORDEX_VIX_GIT_TAG=main
-KORDEX_RUNTIME_GIT_TAG=main
-KORDEX_BINDINGS_GIT_TAG=main
 ```
 
 ## Tests
 
-Enable and run tests:
+The std tests should cover:
+
+- `StdOptions`
+- `StdConfig`
+- `ModuleFactory`
+- `StdRegistry`
+- module creation
+- module installation
+- console module
+- fs module
+- path module
+- env module
+- process module
+- timer module
+- crypto module
+- http module
+- disabled modules
+- max module count
+- permission-gated module behavior
+
+Run all tests:
 
 ```bash
-cmake -S . -B build-ninja -G Ninja \
-  -DKORDEX_STD_BUILD_TESTS=ON
-
-cmake --build build-ninja
-
-ctest --test-dir build-ninja --output-on-failure
+vix tests
 ```
 
-Test files:
-
-```
-tests/
-├── test_version.cpp
-├── test_error.cpp
-├── test_std_options.cpp
-├── test_std_config.cpp
-├── test_console.cpp
-├── test_fs.cpp
-├── test_path.cpp
-├── test_env.cpp
-├── test_process.cpp
-├── test_timer.cpp
-├── test_crypto.cpp
-├── test_http.cpp
-├── test_module_factory.cpp
-└── test_std_registry.cpp
-```
-
-## Examples
-
-Build examples:
+Run tests with raw CTest failure output:
 
 ```bash
-cmake -S . -B build-ninja -G Ninja \
-  -DKORDEX_STD_BUILD_EXAMPLES=ON
-
-cmake --build build-ninja
+vix tests -- --output-on-failure
 ```
 
-Examples:
+Run one test by name or regex:
 
-```
-examples/
-├── console.cpp
-├── fs.cpp
-├── path.cpp
-├── env.cpp
-├── process.cpp
-├── timer.cpp
-└── registry.cpp
+```bash
+vix tests -R std
 ```
 
-## Project structure
+## Run examples
 
-```
-modules/std/
-├── README.md
-├── CHANGELOG.md
-├── LICENSE
-├── CMakeLists.txt
-├── vix.json
-├── .gitignore
-├── cmake/
-│   ├── KordexStdConfig.cmake.in
-│   └── KordexStdOptions.cmake
-├── include/kordex/std/
-│   ├── Version.hpp
-│   ├── Error.hpp
-│   ├── Result.hpp
-│   ├── StdOptions.hpp
-│   ├── StdConfig.hpp
-│   ├── Console.hpp
-│   ├── Fs.hpp
-│   ├── Path.hpp
-│   ├── Env.hpp
-│   ├── Process.hpp
-│   ├── Timer.hpp
-│   ├── Crypto.hpp
-│   ├── Http.hpp
-│   ├── ModuleFactory.hpp
-│   ├── StdRegistry.hpp
-│   └── Std.hpp
-├── src/
-│   ├── Version.cpp
-│   ├── Error.cpp
-│   ├── StdOptions.cpp
-│   ├── StdConfig.cpp
-│   ├── Console.cpp
-│   ├── Fs.cpp
-│   ├── Path.cpp
-│   ├── Env.cpp
-│   ├── Process.cpp
-│   ├── Timer.cpp
-│   ├── Crypto.cpp
-│   ├── Http.cpp
-│   ├── ModuleFactory.cpp
-│   ├── StdRegistry.cpp
-│   └── Std.cpp
-├── tests/
-└── examples/
+Run a standard module example:
+
+```bash
+vix run examples/std_console.cpp
 ```
 
-## Design rules
+Run another example:
 
-Kordex Std owns standard native modules.
+```bash
+vix run examples/std_modules.cpp
+```
 
-Kordex Bindings owns the script-facing binding layer.
+## Integration with CLI
 
-Kordex Runtime owns runtime execution behavior.
+When the user runs:
 
-- `std` may depend on `bindings`
-- `bindings` may depend on `runtime`
-- `runtime` must not depend on `std`
+```bash
+kordex run main.js --allow-fs
+```
 
-This keeps the architecture modular and avoids circular dependencies.
+The CLI creates runtime options:
 
-## Roadmap
+```txt
+allow_fs = true
+```
 
-Planned next steps:
+Then converts them into std options:
 
-- connect modules to real JavaScript imports
-- expose std modules through `kordex:` import specifiers
-- add richer fs operations
-- add async timer APIs
-- connect process helpers to `kordex::runtime::Process`
-- replace placeholder crypto helpers with stronger backends
-- connect HTTP helpers to real fetch/client APIs
-- add permissions per module
-- improve diagnostics and structured errors
+```txt
+enable_fs = true
+```
+
+Then installs the std modules into the engine before script execution.
+
+Pipeline:
+
+```txt
+CLI flags
+-> RuntimeOptions
+-> RuntimeConfig
+-> StdOptions
+-> standard::install(engine, options)
+-> ModuleRegistry
+-> ModuleLoader
+-> QuickJS native bridge
+-> JavaScript import "kordex:fs"
+```
+
+## Current limitations
+
+- `crypto` currently provides deterministic utility primitives, not a full cryptographic backend
+- `http` currently provides helper utilities, not real network requests
+- object and function value conversion is limited by the current bindings `Value` model
+- async JavaScript timers are not fully modeled yet
+- module names are exposed exactly as registered by each native module
+- permission checks are mostly enforced by module installation policy at the CLI/runtime layer
+
+## Relationship with other Kordex modules
+
+```txt
+kordex-runtime
+  -> provides runtime permissions and execution foundation
+
+kordex-bindings
+  -> exposes native modules to JavaScript
+
+kordex-std
+  -> creates the native standard modules
+
+kordex-cli
+  -> installs std modules according to CLI flags
+```
+
+## Module philosophy
+
+`kordex-std` should stay:
+
+- small
+- explicit
+- permission-aware
+- engine-independent
+- easy to test
+- safe by default
+- compatible with the bindings value model
+
+It should expose only capabilities that the runtime has explicitly allowed.
 
 ## License
 
