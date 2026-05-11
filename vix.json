@@ -1,0 +1,32 @@
+{
+  "name": "kordex-std",
+  "namespace": "softadastra",
+  "version": "0.1.0",
+  "type": "library",
+  "include": "include",
+  "license": "MIT",
+  "description": "Standard native modules for Kordex, providing console, filesystem, path, environment, process, timer, crypto, and HTTP APIs for reliable local-first JavaScript applications.",
+  "keywords": [
+    "cpp",
+    "standard-library",
+    "javascript-runtime",
+    "native-modules",
+    "local-first",
+    "kordex",
+    "softadastra",
+    "vix"
+  ],
+  "repository": "https://github.com/softadastra/kordex-std",
+  "authors": [
+    {
+      "name": "Softadastra",
+      "github": "softadastra"
+    }
+  ],
+  "deps": [
+    {
+      "id": "softadastra/kordex-bindings",
+      "version": "0.1.0"
+    }
+  ]
+}

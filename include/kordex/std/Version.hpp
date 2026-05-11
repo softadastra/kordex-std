@@ -21,30 +21,48 @@
 
 namespace kordex::standard
 {
-  inline constexpr int KORDEX_STD_VERSION_MAJOR_VALUE = 0;
-  inline constexpr int KORDEX_STD_VERSION_MINOR_VALUE = 1;
-  inline constexpr int KORDEX_STD_VERSION_PATCH_VALUE = 0;
+  /**
+   * @brief Kordex std semantic version numbers.
+   */
+  inline constexpr int version_major_value = 0;
+  inline constexpr int version_minor_value = 1;
+  inline constexpr int version_patch_value = 0;
 
-  inline constexpr ::std::string_view KORDEX_STD_VERSION = "0.1.0";
+  /**
+   * @brief Kordex std version as a stable string.
+   */
+  inline constexpr std::string_view version_string = "0.1.0";
 
+  /**
+   * @brief Return the Kordex std major version.
+   */
   [[nodiscard]] constexpr int version_major() noexcept
   {
-    return KORDEX_STD_VERSION_MAJOR_VALUE;
+    return version_major_value;
   }
 
+  /**
+   * @brief Return the Kordex std minor version.
+   */
   [[nodiscard]] constexpr int version_minor() noexcept
   {
-    return KORDEX_STD_VERSION_MINOR_VALUE;
+    return version_minor_value;
   }
 
+  /**
+   * @brief Return the Kordex std patch version.
+   */
   [[nodiscard]] constexpr int version_patch() noexcept
   {
-    return KORDEX_STD_VERSION_PATCH_VALUE;
+    return version_patch_value;
   }
 
-  [[nodiscard]] constexpr ::std::string_view version() noexcept
+  /**
+   * @brief Return the Kordex std version string.
+   */
+  [[nodiscard]] constexpr std::string_view version() noexcept
   {
-    return KORDEX_STD_VERSION;
+    return version_string;
   }
 
 } // namespace kordex::standard

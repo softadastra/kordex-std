@@ -15,6 +15,7 @@
  */
 
 #include <string_view>
+
 #include <kordex/std/Version.hpp>
 
 namespace
@@ -47,26 +48,30 @@ namespace
 
   [[nodiscard]] bool test_version_string()
   {
+    constexpr std::string_view expected = "0.1.0";
+
     return expect_true(
-        kordex::standard::version() == ::std::string_view("0.1.0"),
-        "version string should be 0.1.0");
+               kordex::standard::version() == expected,
+               "version string should be 0.1.0") &&
+           expect_true(
+               kordex::standard::version_string == expected,
+               "version constant should be 0.1.0");
   }
 
   [[nodiscard]] bool test_version_constants()
   {
     return expect_true(
-               kordex::standard::KORDEX_STD_VERSION_MAJOR_VALUE == 0,
-               "major version constant should be 0") &&
+               kordex::standard::version_major_value ==
+                   kordex::standard::version_major(),
+               "major constant should match version_major") &&
            expect_true(
-               kordex::standard::KORDEX_STD_VERSION_MINOR_VALUE == 1,
-               "minor version constant should be 1") &&
+               kordex::standard::version_minor_value ==
+                   kordex::standard::version_minor(),
+               "minor constant should match version_minor") &&
            expect_true(
-               kordex::standard::KORDEX_STD_VERSION_PATCH_VALUE == 0,
-               "patch version constant should be 0") &&
-           expect_true(
-               kordex::standard::KORDEX_STD_VERSION ==
-                   ::std::string_view("0.1.0"),
-               "version constant should be 0.1.0");
+               kordex::standard::version_patch_value ==
+                   kordex::standard::version_patch(),
+               "patch constant should match version_patch");
   }
 } // namespace
 
