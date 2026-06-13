@@ -161,6 +161,7 @@ namespace kordex::standard
     options.enable_timer = config_.enable_timer;
     options.enable_crypto = config_.enable_crypto;
     options.enable_http = config_.enable_http;
+    options.enable_softadastra = config_.enable_softadastra;
 
     options.max_modules = config_.max_modules;
 
@@ -202,6 +203,11 @@ namespace kordex::standard
     if (canonical == "http")
     {
       return create_http_module(options);
+    }
+
+    if (canonical == "softadastra")
+    {
+      return create_softadastra_module(options);
     }
 
     return unknown_module_error(name);
@@ -281,6 +287,11 @@ namespace kordex::standard
       names.push_back("http");
     }
 
+    if (config_.enable_softadastra)
+    {
+      names.push_back("softadastra");
+    }
+
     return names;
   }
 
@@ -306,6 +317,7 @@ namespace kordex::standard
            name == "timer" ||
            name == "crypto" ||
            name == "http" ||
+           name == "softadastra" ||
            name == "kordex:console" ||
            name == "kordex:fs" ||
            name == "kordex:path" ||
@@ -313,7 +325,8 @@ namespace kordex::standard
            name == "kordex:process" ||
            name == "kordex:timer" ||
            name == "kordex:crypto" ||
-           name == "kordex:http";
+           name == "kordex:http" ||
+           name == "kordex:softadastra";
   }
 
   Result<kordex::bindings::NativeModule> create_std_module(

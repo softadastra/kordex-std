@@ -76,6 +76,7 @@ namespace kordex::standard
     bool enable_timer{true};
     bool enable_crypto{true};
     bool enable_http{true};
+    bool enable_softadastra{false};
 
     /**
      * @brief Maximum number of modules allowed in a registry.

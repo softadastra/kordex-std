@@ -35,6 +35,7 @@
 #include <kordex/std/Path.hpp>
 #include <kordex/std/Process.hpp>
 #include <kordex/std/Result.hpp>
+#include <kordex/std/Softadastra.hpp>
 #include <kordex/std/StdConfig.hpp>
 #include <kordex/std/StdOptions.hpp>
 #include <kordex/std/StdRegistry.hpp>
@@ -102,6 +103,11 @@ namespace kordex::standard
    * @brief Return true if HTTP support is enabled in this build.
    */
   [[nodiscard]] bool http_enabled() noexcept;
+
+  /**
+   * @brief Return true if Softadastra support is enabled in this build.
+   */
+  [[nodiscard]] bool softadastra_enabled() noexcept;
 
   /**
    * @brief Return the list of standard modules enabled at build time.

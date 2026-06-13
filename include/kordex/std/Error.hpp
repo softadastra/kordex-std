@@ -44,6 +44,7 @@ namespace kordex::standard
     TimerError,
     CryptoError,
     HttpError,
+    SoftadastraError,
     InternalError
   };
 

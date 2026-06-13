@@ -44,6 +44,7 @@ option(KORDEX_STD_ENABLE_PROCESS "Enable kordex:process standard module" ON)
 option(KORDEX_STD_ENABLE_TIMER "Enable kordex:timer standard module" ON)
 option(KORDEX_STD_ENABLE_CRYPTO "Enable kordex:crypto standard module" ON)
 option(KORDEX_STD_ENABLE_HTTP "Enable kordex:http standard module" ON)
+option(KORDEX_STD_ENABLE_SOFTADASTRA "Enable kordex:softadastra standard module" OFF)
 
 # --------------------------------------------------------------------
 # Dependency version policy
@@ -62,6 +63,11 @@ set(KORDEX_BINDINGS_GIT_TAG
     "main"
     CACHE STRING
     "Git tag or branch used for Kordex Bindings")
+
+set(SOFTADASTRA_SDK_GIT_TAG
+    "main"
+    CACHE STRING
+    "Git tag or branch used for Softadastra SDK")
 
 # --------------------------------------------------------------------
 # Dependency fetch policy
@@ -130,6 +136,11 @@ set(KORDEX_STD_FETCH_CORE
     CACHE BOOL
     "Auto-fetch vix::core if missing")
 
+set(KORDEX_STD_FETCH_SOFTADASTRA_SDK
+    ${KORDEX_STD_FETCH_KORDEX_DEPS}
+    CACHE BOOL
+    "Auto-fetch softadastra::sdk if missing")
+
 # --------------------------------------------------------------------
 # Umbrella build policy
 # --------------------------------------------------------------------
@@ -151,4 +162,5 @@ if(DEFINED KORDEX_UMBRELLA_BUILD AND KORDEX_UMBRELLA_BUILD)
   set(KORDEX_STD_FETCH_TIME OFF CACHE BOOL "Auto-fetch vix::time if missing" FORCE)
   set(KORDEX_STD_FETCH_CRYPTO OFF CACHE BOOL "Auto-fetch vix::crypto if missing" FORCE)
   set(KORDEX_STD_FETCH_CORE OFF CACHE BOOL "Auto-fetch vix::core if missing" FORCE)
+  set(KORDEX_STD_FETCH_SOFTADASTRA_SDK OFF CACHE BOOL "Auto-fetch softadastra::sdk if missing" FORCE)
 endif()

@@ -22,6 +22,10 @@ if(@KORDEX_STD_ENABLE_HTTP@)
   find_dependency(vix_core CONFIG REQUIRED)
 endif()
 
+if(@KORDEX_STD_ENABLE_SOFTADASTRA@)
+  find_dependency(sdk-cpp CONFIG REQUIRED)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/kordex_stdTargets.cmake")
 
 check_required_components(kordex_std)

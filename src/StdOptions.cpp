@@ -42,6 +42,7 @@ namespace kordex::standard
     options.enable_timer = true;
     options.enable_crypto = true;
     options.enable_http = true;
+    options.enable_softadastra = false;
 
     options.max_modules = 0;
 
@@ -67,6 +68,7 @@ namespace kordex::standard
     options.enable_timer = true;
     options.enable_crypto = true;
     options.enable_http = false;
+    options.enable_softadastra = false;
 
     options.max_modules = 0;
 
@@ -92,6 +94,7 @@ namespace kordex::standard
     options.enable_timer = true;
     options.enable_crypto = true;
     options.enable_http = true;
+    options.enable_softadastra = false;
 
     options.max_modules = 16;
 
@@ -117,6 +120,7 @@ namespace kordex::standard
     options.enable_timer = false;
     options.enable_crypto = false;
     options.enable_http = false;
+    options.enable_softadastra = false;
 
     options.max_modules = 0;
 
@@ -153,7 +157,8 @@ namespace kordex::standard
             enable_process ||
             enable_timer ||
             enable_crypto ||
-            enable_http);
+            enable_http ||
+            enable_softadastra);
   }
 
 } // namespace kordex::standard

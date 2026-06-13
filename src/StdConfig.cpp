@@ -57,6 +57,7 @@ namespace kordex::standard
     config.enable_timer = options.enable_timer;
     config.enable_crypto = options.enable_crypto;
     config.enable_http = options.enable_http;
+    config.enable_softadastra = options.enable_softadastra;
 
     config.max_modules = options.max_modules;
 
@@ -105,7 +106,8 @@ namespace kordex::standard
             enable_process ||
             enable_timer ||
             enable_crypto ||
-            enable_http);
+            enable_http ||
+            enable_softadastra);
   }
 
   bool StdConfig::module_enabled(
@@ -156,6 +158,11 @@ namespace kordex::standard
       return enable_http;
     }
 
+    if (name == "softadastra" || name == "kordex:softadastra")
+    {
+      return enable_softadastra;
+    }
+
     return false;
   }
 
@@ -204,6 +211,11 @@ namespace kordex::standard
     }
 
     if (enable_http)
+    {
+      ++count;
+    }
+
+    if (enable_softadastra)
     {
       ++count;
     }

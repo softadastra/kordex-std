@@ -69,6 +69,7 @@ namespace kordex::standard
     case StdErrorCode::TimerError:
     case StdErrorCode::CryptoError:
     case StdErrorCode::HttpError:
+    case StdErrorCode::SoftadastraError:
     case StdErrorCode::InternalError:
       return vix::error::ErrorCode::InternalError;
     }
@@ -109,6 +110,8 @@ namespace kordex::standard
       return "crypto_error";
     case StdErrorCode::HttpError:
       return "http_error";
+    case StdErrorCode::SoftadastraError:
+      return "softadastra_error";
     case StdErrorCode::InternalError:
       return "internal_error";
     }
@@ -149,6 +152,8 @@ namespace kordex::standard
       return "crypto module error";
     case StdErrorCode::HttpError:
       return "http module error";
+    case StdErrorCode::SoftadastraError:
+      return "softadastra module error";
     case StdErrorCode::InternalError:
       return "internal std error";
     }

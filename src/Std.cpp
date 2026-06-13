@@ -110,6 +110,15 @@ namespace kordex::standard
 #endif
   }
 
+  bool softadastra_enabled() noexcept
+  {
+#if defined(KORDEX_STD_ENABLE_SOFTADASTRA) && KORDEX_STD_ENABLE_SOFTADASTRA
+    return true;
+#else
+    return false;
+#endif
+  }
+
   ::std::vector<::std::string> build_enabled_modules()
   {
     ::std::vector<::std::string> modules;
@@ -152,6 +161,11 @@ namespace kordex::standard
     if (http_enabled())
     {
       modules.push_back("http");
+    }
+
+    if (softadastra_enabled())
+    {
+      modules.push_back("softadastra");
     }
 
     return modules;

@@ -31,6 +31,7 @@
 #include <kordex/std/Path.hpp>
 #include <kordex/std/Process.hpp>
 #include <kordex/std/Result.hpp>
+#include <kordex/std/Softadastra.hpp>
 #include <kordex/std/StdConfig.hpp>
 #include <kordex/std/StdOptions.hpp>
 #include <kordex/std/Timer.hpp>
@@ -96,6 +97,7 @@ namespace kordex::standard
      * - timer / kordex:timer
      * - crypto / kordex:crypto
      * - http / kordex:http
+     * - softadastra / kordex:softadastra
      */
     [[nodiscard]] Result<kordex::bindings::NativeModule> create_module(
         const ::std::string &name) const;

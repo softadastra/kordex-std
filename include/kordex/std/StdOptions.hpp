@@ -109,6 +109,11 @@ namespace kordex::standard
     bool enable_http{true};
 
     /**
+     * @brief Whether Softadastra module is enabled.
+     */
+    bool enable_softadastra{false};
+
+    /**
      * @brief Optional maximum module count.
      *
      * Zero means unlimited.

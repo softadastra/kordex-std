@@ -204,6 +204,38 @@ if(KORDEX_STD_ENABLE_HTTP)
       ${KORDEX_VIX_GIT_TAG})
 endif()
 
+if(KORDEX_STD_ENABLE_SOFTADASTRA)
+  if(NOT TARGET softadastra::sdk)
+    find_package(sdk-cpp CONFIG QUIET)
+  endif()
+
+  if(NOT TARGET softadastra::sdk)
+    set(KORDEX_STD_SOFTADASTRA_SDK_SOURCE_DIR
+        "${CMAKE_CURRENT_LIST_DIR}/../../../sdk"
+        CACHE PATH
+        "Path to Softadastra SDK source tree")
+
+    if(EXISTS "${KORDEX_STD_SOFTADASTRA_SDK_SOURCE_DIR}/CMakeLists.txt")
+      message(STATUS "[std] Adding softadastra::sdk from local source: ${KORDEX_STD_SOFTADASTRA_SDK_SOURCE_DIR}")
+
+      set(SDK_CPP_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+      set(SDK_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+      set(SDK_CPP_INSTALL OFF CACHE BOOL "" FORCE)
+
+      add_subdirectory(
+          "${KORDEX_STD_SOFTADASTRA_SDK_SOURCE_DIR}"
+          "${CMAKE_CURRENT_BINARY_DIR}/_deps/sdk-cpp")
+    endif()
+  endif()
+
+  if(NOT TARGET softadastra::sdk)
+    message(FATAL_ERROR
+        "[std] Required dependency target 'softadastra::sdk' was not found.\n"
+        "Install sdk-cpp, provide KORDEX_STD_SOFTADASTRA_SDK_SOURCE_DIR, "
+        "or add the SDK in the umbrella build.")
+  endif()
+endif()
+
 set(KORDEX_STD_DEPENDENCIES
     kordex::bindings
     kordex::runtime
@@ -222,6 +254,10 @@ endif()
 
 if(KORDEX_STD_ENABLE_HTTP)
   list(APPEND KORDEX_STD_DEPENDENCIES vix::core)
+endif()
+
+if(KORDEX_STD_ENABLE_SOFTADASTRA)
+  list(APPEND KORDEX_STD_DEPENDENCIES softadastra::sdk)
 endif()
 
 # --------------------------------------------------------------------
@@ -245,6 +281,11 @@ set(KORDEX_STD_HEADERS
     include/kordex/std/StdRegistry.hpp
     include/kordex/std/Std.hpp)
 
+if(KORDEX_STD_ENABLE_SOFTADASTRA)
+  list(APPEND KORDEX_STD_HEADERS
+      include/kordex/std/Softadastra.hpp)
+endif()
+
 set(KORDEX_STD_SOURCES
     src/Version.cpp
     src/Error.cpp
@@ -262,6 +303,10 @@ set(KORDEX_STD_SOURCES
     src/StdRegistry.cpp
     src/Std.cpp)
 
+if(KORDEX_STD_ENABLE_SOFTADASTRA)
+  list(APPEND KORDEX_STD_SOURCES
+      src/Softadastra.cpp)
+endif()
 # --------------------------------------------------------------------
 # Library
 # --------------------------------------------------------------------
@@ -294,7 +339,8 @@ target_compile_definitions(kordex_std
       KORDEX_STD_ENABLE_PROCESS=$<BOOL:${KORDEX_STD_ENABLE_PROCESS}>
       KORDEX_STD_ENABLE_TIMER=$<BOOL:${KORDEX_STD_ENABLE_TIMER}>
       KORDEX_STD_ENABLE_CRYPTO=$<BOOL:${KORDEX_STD_ENABLE_CRYPTO}>
-      KORDEX_STD_ENABLE_HTTP=$<BOOL:${KORDEX_STD_ENABLE_HTTP}>)
+      KORDEX_STD_ENABLE_HTTP=$<BOOL:${KORDEX_STD_ENABLE_HTTP}>
+      KORDEX_STD_ENABLE_SOFTADASTRA=$<BOOL:${KORDEX_STD_ENABLE_SOFTADASTRA}>)
 
 if(KORDEX_STD_ENABLE_WARNINGS)
   target_compile_options(kordex_std
@@ -426,4 +472,5 @@ message(STATUS "  process   : ${KORDEX_STD_ENABLE_PROCESS}")
 message(STATUS "  timer     : ${KORDEX_STD_ENABLE_TIMER}")
 message(STATUS "  crypto    : ${KORDEX_STD_ENABLE_CRYPTO}")
 message(STATUS "  http      : ${KORDEX_STD_ENABLE_HTTP}")
+message(STATUS "  softadastra: ${KORDEX_STD_ENABLE_SOFTADASTRA}")
 message(STATUS "")
