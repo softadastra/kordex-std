@@ -207,9 +207,12 @@ namespace kordex::standard
 
     if (canonical == "softadastra")
     {
+#if KORDEX_STD_ENABLE_SOFTADASTRA
       return create_softadastra_module(options);
+#else
+      return disabled_module_error(canonical);
+#endif
     }
-
     return unknown_module_error(name);
   }
 
@@ -287,10 +290,12 @@ namespace kordex::standard
       names.push_back("http");
     }
 
+#if KORDEX_STD_ENABLE_SOFTADASTRA
     if (config_.enable_softadastra)
     {
       names.push_back("softadastra");
     }
+#endif
 
     return names;
   }
@@ -309,26 +314,33 @@ namespace kordex::standard
   bool ModuleFactory::known_module(
       const ::std::string &name) noexcept
   {
-    return name == "console" ||
-           name == "fs" ||
-           name == "path" ||
-           name == "env" ||
-           name == "process" ||
-           name == "timer" ||
-           name == "crypto" ||
-           name == "http" ||
-           name == "softadastra" ||
-           name == "kordex:console" ||
-           name == "kordex:fs" ||
-           name == "kordex:path" ||
-           name == "kordex:env" ||
-           name == "kordex:process" ||
-           name == "kordex:timer" ||
-           name == "kordex:crypto" ||
-           name == "kordex:http" ||
-           name == "kordex:softadastra";
-  }
+    if (name == "console" ||
+        name == "fs" ||
+        name == "path" ||
+        name == "env" ||
+        name == "process" ||
+        name == "timer" ||
+        name == "crypto" ||
+        name == "http" ||
+        name == "kordex:console" ||
+        name == "kordex:fs" ||
+        name == "kordex:path" ||
+        name == "kordex:env" ||
+        name == "kordex:process" ||
+        name == "kordex:timer" ||
+        name == "kordex:crypto" ||
+        name == "kordex:http")
+    {
+      return true;
+    }
 
+#if KORDEX_STD_ENABLE_SOFTADASTRA
+    return name == "softadastra" ||
+           name == "kordex:softadastra";
+#else
+    return false;
+#endif
+  }
   Result<kordex::bindings::NativeModule> create_std_module(
       const ::std::string &name,
       const StdOptions &options)

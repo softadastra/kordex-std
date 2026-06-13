@@ -31,7 +31,9 @@
 #include <kordex/std/Path.hpp>
 #include <kordex/std/Process.hpp>
 #include <kordex/std/Result.hpp>
+#if KORDEX_STD_ENABLE_SOFTADASTRA
 #include <kordex/std/Softadastra.hpp>
+#endif
 #include <kordex/std/StdConfig.hpp>
 #include <kordex/std/StdOptions.hpp>
 #include <kordex/std/Timer.hpp>
